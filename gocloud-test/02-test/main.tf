@@ -88,33 +88,3 @@ resource "aws_security_group" "sg" {
 
 
 
-
-
-/*
-resource "null_resource" "copy_execute" {
-
-  connection {
-    type        = "ssh"
-    host        = aws_instance.webserver.public_ip
-    user        = "ec2-user"
-    private_key = file("~/.ssh/id_rsa")
-  }
-
-
-  provisioner "file" {
-    source      = "amzn-web-app.sh"
-    destination = "/tmp/amzn-web-app.sh"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo chmod 777 /tmp/amzn-web-app.sh",
-      "sh /tmp/amzn-web-app.sh",
-    ]
-  }
-
-  depends_on = [aws_instance.webserver]
-
-}
-
-*/
