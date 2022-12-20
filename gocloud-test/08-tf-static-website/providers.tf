@@ -1,27 +1,19 @@
 # Terraform Block
 terraform {
-  backend "remote" {
-        # The name of your Terraform Cloud organization.
-        organization = "prafect"
-
-         # The name of the Terraform Cloud workspace to store Terraform state files in.
-        workspaces {
-           name = "terraform-aws-tests"
-        }
-      }
-
-           resource "null_resource" "example" {
-   triggers = {
-       value = "A example resource that does nothing!"
-     }
+  cloud {
+    organization = "prafect"
+    workspaces {
+      name = "terraform-aws-tests"
     }
+  }
 
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "4.48.0"
+      version = "~>4.48.0"
     }
   }
+  required_version = ">= 1.3.0"
 }
 
 # Provider Block

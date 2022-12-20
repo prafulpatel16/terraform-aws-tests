@@ -3,6 +3,7 @@
 variable "bucket_name" {
   description = "Name of the S3 bucket. Must be Unique across AWS"
   type        = string
+  default     = "praful-bucket-2023"
 }
 
 variable "tags" {
