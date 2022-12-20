@@ -1,7 +1,7 @@
 # Terraform Block
 terraform {
   backend "local" {
-    path = "static-web-statefile/terraform.tfstate"
+    path = "static-web-statefile/terraform.tfstate"    //local backend to store the state locally
   }
   required_providers {
     aws = {
