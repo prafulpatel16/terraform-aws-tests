@@ -1,8 +1,15 @@
 # Terraform Block
 terraform {
-  backend "local" {
-    path = "static-web-statefile/terraform.tfstate"
-  }
+  backend "remote" {
+        # The name of your Terraform Cloud organization.
+        organization = "prafect"
+
+         # The name of the Terraform Cloud workspace to store Terraform state files in.
+        workspaces {
+           name = "terraform-aws-tests"
+        }
+      }
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
