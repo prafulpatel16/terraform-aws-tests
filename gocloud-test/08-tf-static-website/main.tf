@@ -31,6 +31,7 @@ EOF
 data "aws_s3_bucket" "s3_bucket" {
   bucket = aws_s3_bucket.s3_bucket.bucket
 }
+
 /*
 resource "aws_s3_object" "object-upload-html" {
   for_each     = fileset("uploads/", "*.html")
@@ -61,13 +62,29 @@ resource "aws_s3_object" "object-upload-css" {
 }
 */
 
+locals {
+  content_type_map = {
+    html = "text/html",
+    js   = "application/javascript",
+    css  = "text/css",
+    svg  = "image/svg+xml",
+    jpg  = "image/jpeg",
+    ico  = "image/x-icon",
+    png  = "image/png",
+    gif  = "image/gif",
+    pdf  = "application/pdf"
+  }
+}
 resource "aws_s3_bucket_object" "file" {
   for_each = fileset(var.web_root, "**")
 
-  bucket       = data.aws_s3_bucket.s3_bucket.bucket
-  key          = each.value
-  source       = "${var.web_root}/${each.value}"
-  content_type = "text/html"
-  source_hash  = filemd5("${var.web_root}/${each.value}")
-  acl          = "public-read"
+  bucket = data.aws_s3_bucket.s3_bucket.bucket
+  key    = each.value
+  source = "${var.web_root}/${each.value}"
+  // content_type = "text/html"
+  source_hash = filemd5("${var.web_root}/${each.value}")
+  acl         = "public-read"
+  //content_type = "text/html"
+  //content_type = lookup(local.content_type_map, regex("\\.(?P<extension>[A-Za-z0-9]+)$", each.value).extension, "application/octet-stream")
+  content_type = lookup(local.content_type_map, regex("\\.(?P<extension>[A-Za-z0-9]+)$", each.value).extension, "text/css")
 }

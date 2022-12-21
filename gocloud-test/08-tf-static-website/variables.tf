@@ -15,5 +15,5 @@ variable "tags" {
 variable "web_root" {
   type        = string
   description = "Path to the root of website content"
-  default     = "./uploads"
+  default     = "./webfiles"
 }
