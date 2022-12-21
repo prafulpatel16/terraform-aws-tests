@@ -1,0 +1,9 @@
+# Terraform Block
+terraform {
+  cloud {
+    organization = "prafect"
+    workspaces {
+      name = "terraform-aws-tests"   //remote backend - state stored in terraform cloud
+    }
+  }
+}
