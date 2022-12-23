@@ -17,3 +17,7 @@ variable "web_root" {
   description = "Path to the root of website content"
   default     = "./webfiles"
 }
+variable "domain_name" {
+  default = "prafulcloud.com"
+  type    = string
+}
