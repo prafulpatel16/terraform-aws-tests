@@ -32,7 +32,6 @@ EOF
 data "aws_s3_bucket" "s3_bucket" {
   bucket = aws_s3_bucket.s3_bucket.bucket
 }
-
 //deinfe locals block to map web application's content-type in order to display the web page correctly
 locals {
   content_type_map = {
@@ -47,18 +46,13 @@ locals {
     pdf  = "application/pdf"
   }
 }
-
 resource "aws_s3_bucket_object" "file" {
-  for_each = fileset(var.web_root, "**")
-
-  bucket = data.aws_s3_bucket.s3_bucket.bucket
-  key    = each.value
-  source = "${var.web_root}/${each.value}"
-  // content_type = "text/html"
-  source_hash = filemd5("${var.web_root}/${each.value}")
-  acl         = "public-read"
-  //content_type = "text/html"
-  //content_type = lookup(local.content_type_map, regex("\\.(?P<extension>[A-Za-z0-9]+)$", each.value).extension, "application/octet-stream")
+  for_each     = fileset(var.web_root, "**")
+  bucket       = data.aws_s3_bucket.s3_bucket.bucket
+  key          = each.value
+  source       = "${var.web_root}/${each.value}"
+  source_hash  = filemd5("${var.web_root}/${each.value}")
+  acl          = "public-read"
   content_type = lookup(local.content_type_map, regex("\\.(?P<extension>[A-Za-z0-9]+)$", each.value).extension, "text/css")
 }
 
@@ -68,9 +62,11 @@ resource "aws_route53_zone" "myzone" {
   name = var.domain_name
 }
 */
+/*
+
 data "aws_route53_zone" "myzone" {
-  name         = var.domain_name
-  
+  name = var.domain_name
+
 }
 
 resource "aws_route53_record" "exampleDomain" {
@@ -83,6 +79,12 @@ resource "aws_route53_record" "exampleDomain" {
     evaluate_target_health = true
   }
 }
+
+
+
+
+
+
 
 //optional way to upload a web sourse code file to s3 bucket
 /*

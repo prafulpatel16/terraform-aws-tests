@@ -1,0 +1,84 @@
+## S3
+# Creates bucket to store logs
+resource "aws_s3_bucket" "website_logs" {
+  bucket        = "${var.website-domain-main}-logs"
+  acl           = "log-delivery-write"
+  force_destroy = true
+
+  tags = merge(var.tags, {
+    ManagedBy = "terraform"
+    Changed   = formatdate("YYYY-MM-DD hh:mm ZZZ", timestamp())
+  })
+  lifecycle {
+    ignore_changes = [tags["Changed"]]
+  }
+
+}
+
+# Creates bucket to store the static website
+resource "aws_s3_bucket" "website_root" {
+  bucket        = "${var.website-domain-main}-root"
+  acl           = "public-read"
+  policy        = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+          "Sid": "PublicReadGetObject",
+          "Effect": "Allow",
+          "Principal": "*",
+          "Action": [
+              "s3:GetObject"
+          ],
+          "Resource": [
+              "arn:aws:s3:::${var.bucket_name}/*"
+          ]
+      }
+  ]
+}  
+EOF
+  force_destroy = true
+
+  logging {
+    target_bucket = aws_s3_bucket.website_logs.bucket
+    target_prefix = "${var.website-domain-main}/"
+  }
+
+  website {
+    index_document = "index.html"
+    error_document = var.prafuls-web ? "" : "404.html"
+  }
+  tags = merge(var.tags, {
+    ManagedBy = "terraform"
+    Changed   = formatdate("YYYY-MM-DD hh:mm ZZZ", timestamp())
+  })
+
+  lifecycle {
+    ignore_changes = [tags["Changed"]]
+  }
+}
+
+
+//deinfe locals block to map web application's content-type in order to display the web page correctly
+locals {
+  content_type_map = {
+    html = "text/html",
+    js   = "application/javascript",
+    css  = "text/css",
+    svg  = "image/svg+xml",
+    jpg  = "image/jpeg",
+    ico  = "image/x-icon",
+    png  = "image/png",
+    gif  = "image/gif",
+    pdf  = "application/pdf"
+  }
+}
+resource "aws_s3_bucket_object" "file" {
+  for_each     = fileset(var.web_root, "**")
+  bucket       = aws_s3_bucket.website_root.bucket
+  key          = each.value
+  source       = "${var.web_file}/${each.value}"
+  source_hash  = filemd5("${var.web_file}/${each.value}")
+  acl          = "public-read"
+  content_type = lookup(local.content_type_map, regex("\\.(?P<extension>[A-Za-z0-9]+)$", each.value).extension, "text/css")
+}

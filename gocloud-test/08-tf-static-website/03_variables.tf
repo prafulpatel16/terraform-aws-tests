@@ -1,9 +1,8 @@
 # Input variable definitions
-
 variable "bucket_name" {
   description = "Name of the S3 bucket. Must be Unique across AWS"
   type        = string
-  default     = "praful-bucket-2023"
+  #default     = "praful-bucket-2023"
 }
 
 variable "tags" {
@@ -17,6 +16,7 @@ variable "web_root" {
   description = "Path to the root of website content"
   default     = "./webfiles"
 }
+
 variable "domain_name" {
   default = "prafulcloud.com"
   type    = string
