@@ -7,6 +7,7 @@ resource "aws_s3_bucket" "s3_bucket" {
 {
   "Version": "2012-10-17",
   "Statement": [
+    
       {
           "Sid": "PublicReadGetObject",
           "Effect": "Allow",
@@ -79,11 +80,6 @@ resource "aws_route53_record" "exampleDomain" {
     evaluate_target_health = true
   }
 }
-
-
-
-
-
 
 
 //optional way to upload a web sourse code file to s3 bucket

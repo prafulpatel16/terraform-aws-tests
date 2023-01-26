@@ -1,0 +1,5 @@
+https://aws.amazon.com/blogs/networking-and-content-delivery/adding-http-security-headers-using-lambdaedge-and-amazon-cloudfront/
+
+
+https://catalog.us-east-1.prod.workshops.aws/workshops/60498ce8-d502-4423-b433-12ab94aa822e/en-US/03-managed-rules
+

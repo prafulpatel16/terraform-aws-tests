@@ -163,8 +163,6 @@ resource "aws_cloudfront_distribution" "website_cdn_root" {
 
 
 
-
-
 # Creates the CloudFront distribution to serve the redirection website (if redirection is required)
 resource "aws_cloudfront_distribution" "website_cdn_redirect" {
   enabled     = true

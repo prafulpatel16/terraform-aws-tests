@@ -1,11 +1,11 @@
 ## S3
 # Creates bucket to store logs
 resource "aws_s3_bucket" "website_logs" {
-  bucket        = "${var.website-domain-main}-logs"
-  acl           = "log-delivery-write"
+  bucket = "${var.website-domain-main}-logs"
+  acl    = "log-delivery-write"
   force_destroy = true
 
-  tags = merge(var.tags, {
+    tags = merge(var.tags, {
     ManagedBy = "terraform"
     Changed   = formatdate("YYYY-MM-DD hh:mm ZZZ", timestamp())
   })
@@ -17,37 +17,45 @@ resource "aws_s3_bucket" "website_logs" {
 
 # Creates bucket to store the static website
 resource "aws_s3_bucket" "website_root" {
-  bucket        = "${var.website-domain-main}-root"
-  acl           = "public-read"
-  policy        = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-      {
-          "Sid": "PublicReadGetObject",
-          "Effect": "Allow",
-          "Principal": "*",
-          "Action": [
-              "s3:GetObject"
-          ],
-          "Resource": [
-              "arn:aws:s3:::${var.bucket_name}/*"
-          ]
-      }
-  ]
-}  
-EOF
-  force_destroy = true
+  bucket = "${var.website-domain-main}-root"
+  acl    = "public-read"
+   
+force_destroy = true
 
-  logging {
+logging {
     target_bucket = aws_s3_bucket.website_logs.bucket
     target_prefix = "${var.website-domain-main}/"
   }
 
-  website {
+website {
     index_document = "index.html"
     error_document = var.prafuls-web ? "" : "404.html"
   }
+tags = merge(var.tags, {
+    ManagedBy = "terraform"
+    Changed   = formatdate("YYYY-MM-DD hh:mm ZZZ", timestamp())
+  })
+
+  lifecycle {
+    ignore_changes = [tags["Changed"]]
+  }
+}
+
+# Creates bucket for the website handling the redirection (if required), e.g. from https://www.example.com to https://example.com
+resource "aws_s3_bucket" "website_redirect" {
+  bucket        = "${var.website-domain-main}-redirect"
+  acl           = "public-read"
+  force_destroy = true
+
+  logging {
+    target_bucket = aws_s3_bucket.website_logs.bucket
+    target_prefix = "${var.website-domain-main}-redirect/"
+  }
+
+  website {
+    redirect_all_requests_to = "https://${var.website-domain-main}"
+  }
+
   tags = merge(var.tags, {
     ManagedBy = "terraform"
     Changed   = formatdate("YYYY-MM-DD hh:mm ZZZ", timestamp())
@@ -58,6 +66,32 @@ EOF
   }
 }
 
+
+# Creates policy to allow public access to the S3 bucket
+resource "aws_s3_bucket_policy" "update_website_root_bucket_policy" {
+  bucket = aws_s3_bucket.website_root.id
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Id": "PolicyForWebsiteEndpointsPublicContent",
+  "Statement": [
+    {
+      "Sid": "PublicRead",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Resource": [
+        "${aws_s3_bucket.website_root.arn}/*",
+        "${aws_s3_bucket.website_root.arn}"
+      ]
+    }
+  ]
+}
+POLICY
+}
 
 //deinfe locals block to map web application's content-type in order to display the web page correctly
 locals {
